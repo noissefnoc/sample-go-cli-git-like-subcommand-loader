@@ -3,6 +3,7 @@ package lib
 import (
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 )
 
@@ -15,17 +16,21 @@ const (
 	filePrefixSeparator = "-"
 )
 
-func SearchBins(binPrefix string, searchPathEnv string, extraSearchPaths []string) ([]string, error) {
+func SearchBins(binPrefix string, searchPathEnv string, extraSearchPaths []string) (map[string]string, error) {
 
 	binPrefix = binPrefix + filePrefixSeparator
 	pathString := os.Getenv(searchPathEnv)
 	searchPaths := strings.Split(pathString, pathEnvSeparator)
 
+	if len(searchPaths) > 0 {
+		sort.Sort(sort.Reverse(sort.StringSlice(searchPaths)))
+	}
+
 	if len(extraSearchPaths) != 0 {
 		searchPaths = append(searchPaths, extraSearchPaths...)
 	}
 
-	var binPaths []string
+	var subcommandPath = make(map[string]string)
 
 	for i := range searchPaths {
 		filepath.Walk(searchPaths[i],
@@ -41,12 +46,13 @@ func SearchBins(binPrefix string, searchPathEnv string, extraSearchPaths []strin
 					return nil
 				}
 
-				binPaths = append(binPaths, path)
+				subcommandName := strings.TrimLeft(fileName, binPrefix)
+				subcommandPath[subcommandName] = path
 
 				return nil
 			},
 		)
 	}
 
-	return binPaths, nil
+	return subcommandPath, nil
 }

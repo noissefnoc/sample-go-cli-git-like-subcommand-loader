@@ -22,7 +22,7 @@ func Test_searchBins(t *testing.T) {
 		name    string
 		args    args
 		pathEnv string
-		want    []string
+		want    map[string]string
 		wantErr bool
 	}{
 		{
@@ -31,6 +31,7 @@ func Test_searchBins(t *testing.T) {
 				binPrefix: "sample",
 				searchPathEnv: "X_TEST_PATH",
 			},
+			want: map[string]string{},
 			pathEnv: "",
 		},
 		{
@@ -39,6 +40,7 @@ func Test_searchBins(t *testing.T) {
 				binPrefix: "sample",
 				searchPathEnv: "X_TEST_PATH",
 			},
+			want: map[string]string{},
 			pathEnv: emptyPath,
 		},
 		{
@@ -48,7 +50,7 @@ func Test_searchBins(t *testing.T) {
 				searchPathEnv: "X_TEST_PATH",
 			},
 			pathEnv: bin1Path,
-			want: []string{filepath.Join(bin1Path, "sample-ok")},
+			want: map[string]string{"ok": filepath.Join(bin1Path, "sample-ok")},
 		},
 		{
 			name: "multiple env path",
@@ -57,7 +59,7 @@ func Test_searchBins(t *testing.T) {
 				searchPathEnv: "X_TEST_PATH",
 			},
 			pathEnv: bin1Path + ":" + bin2Path,
-			want: []string{filepath.Join(bin1Path, "sample-ok"), filepath.Join(bin2Path, "sample-ok")},
+			want: map[string]string{"ok": filepath.Join(bin1Path, "sample-ok")},
 		},
 		{
 			name: "only extraPath",
@@ -67,7 +69,7 @@ func Test_searchBins(t *testing.T) {
 				extraSearchPaths: []string{extraPath},
 			},
 			pathEnv: "",
-			want: []string{filepath.Join(extraPath, "sample-ok")},
+			want: map[string]string{"ok": filepath.Join(extraPath, "sample-ok")},
 		},
 		{
 			name: "multiple path with extraPath",
@@ -77,11 +79,7 @@ func Test_searchBins(t *testing.T) {
 				extraSearchPaths: []string{extraPath},
 			},
 			pathEnv: bin1Path + ":" + bin2Path,
-			want: []string{
-				filepath.Join(bin1Path, "sample-ok"),
-				filepath.Join(bin2Path, "sample-ok"),
-				filepath.Join(extraPath, "sample-ok"),
-			},
+			want: map[string]string{"ok": filepath.Join(extraPath, "sample-ok")},
 		},
 	}
 	for _, tt := range tests {
